@@ -52,9 +52,12 @@ void NumPad_::loopHook(bool postClear) {
 
   if (row > ROWS || col > COLS)
     return;
+
+cRGB color = breath_compute();
+LEDControl.setCrgbAt(row, col, color);
 }
 
-  cRGB color = breath_compute();
+
 
 
   NumPad_ NumPad;
@@ -94,25 +97,30 @@ void FuncPad_::loopHook(bool postClear) {
     for (uint8_t c = 0; c < COLS; c++) {
       Key k = Layer.lookupOnActiveLayer(r, c);
       Key layer_key = Layer.getKey(FuncPadLayer, r, c);
-
+        
       if (k == LockLayer(FuncPadLayer)) {
         row  = r;
         col = c;
       }
+      if ((k != layer_key)) {    LEDControl.refreshAt(r, c);  } 
+        else {
+                        
+                    //Added some nice colors for some specials keys
+                     if(k == Key_UpArrow || k ==Key_LeftArrow || k == Key_DownArrow || k == Key_RightArrow  
+                        || k == LCTRL(Key_Z) || k == LCTRL(Key_X) || k == LCTRL(Key_C) || k == LCTRL(Key_V)) { LEDControl.setCrgbAt(r, c, CRGB(0,200,0));}
+                      else {  LEDControl.setCrgbAt(r, c, FuncPad_::Funcpad_color);
+                      if  ( (k.flags & IS_CONSUMER)  == IS_CONSUMER) {LEDControl.setCrgbAt(r, c, CRGB(200,0,0));}
+                      if  ( k == LSHIFT(Key_LeftControl)) {LEDControl.setCrgbAt(r, c, CRGB(255,255,255));}
 
-      if ((k != layer_key) || (k.flags != KEY_FLAGS)) {
-        LEDControl.refreshAt(r, c);
-      } else {
-        LEDControl.setCrgbAt(r, c, FuncPad_::Funcpad_color);
-      }
-    }
+
+                      }
+              }
+        }
   }
 
   if (row > ROWS || col > COLS)
     return;
 
-
-  LEDControl.setCrgbAt(row, col, color);
 }
 
 FuncPad_ FuncPad;
